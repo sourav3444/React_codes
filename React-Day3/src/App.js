@@ -1,72 +1,66 @@
-/*
- *  PARCEL IS A BEAST
-* File watcher algorithm
-*Bundling
-*Minify
-*cleaning our code
-*dev and production build
-*superfast build algorithm
-*Image optimization
-*Caching while developement
-*Compression
-*Compatable with older version of browser
-*HTTPS on DEV
-*port Number    
-*Consistent Hashing Algorithm
-*Zero config
-*Tree shaking -Removing unwanted function
-*Transitive Dependencies
-*
-*
-*/
 
+ 
 
-
-import React from "react";
+import React, { lazy, Suspense, useContext, useState } from "react";
 import ReactDOM from "react-dom/client";
-import {Header} from "./components/header";
+import { Header } from "./components/header";
 import { Footer } from "./components/footer";
 import { Body } from "./components/body";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import AboutPage from "./components/About";
+import Error from "./components/Error";
+import RestaurantMenu from "./components/restaurantMenu";
+import UserContext from "./utils/UserContext";
+import { Provider } from "react-redux";
 
-// *React component
-// *->functional component
-// *->Class Based Component
+const InstaMart = lazy(() => import("./components/Instamart"));
+const userInfo = {
+  user: {
+    name: "dummy",
+    email: "Kuchvi@email.com",
+  },
+};
+const AppLayout = () => {
+  const { user } = useContext(UserContext);
+  // const [user, setUser] = useState(userInfo);
+  return (
+    <UserContext.Provider value={{ user }}>
+      <Header />
+      <Outlet />
+      <Footer />
+    </UserContext.Provider>
+  );
+};
 
+const appRouter = createBrowserRouter([
+  {
+    path: "/",
+    element: <AppLayout />,
+    errorElement: <Error />,
+    children: [
+      {
+        path: "/",
+        element: <Body />,
+      },
+      {
+        path: "/about",
+        element: <AboutPage />,
+      },
+      {
+        path: "/restaurants/:resId",
+        element: <RestaurantMenu />,
+      },
+      {
+        path: "/instamart",
+        element: (
+          <Suspense>
+            <InstaMart />
+          </Suspense>
+        ),
+      },
+    ],
+  },
+]);
 
-
-const AppLayout=()=>{
-    return (
-        <React.Fragment>
-            <Header/>
-            <Body/>
-            <Footer/>
-        </React.Fragment>
-    );
-        
-    }
-const root=ReactDOM.createRoot(document.getElementById("root"));
-
-
-root.render(<AppLayout/>);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<RouterProvider router={appRouter} />);
